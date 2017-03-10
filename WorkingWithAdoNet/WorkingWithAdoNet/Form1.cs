@@ -13,38 +13,62 @@ namespace WorkingWithAdoNet
 {
     public partial class AdoNetForm1 : Form
     {
+        private AccessClass StaffDB = new AccessClass();
         public AdoNetForm1()
         {
             InitializeComponent();
-            /*
-            SqlConnection con = new SqlConnection("Server=(localdb)\\ProjectsV13;" +
-                "Trusted_Connection=yes;" +
-                "Integrated Security=True;" +
-                "database=master;");
-            SqlCommand cmd = new SqlCommand("Select * From StaffTable", con);
-            con.Open();
-            SqlDataReader rd = cmd.ExecuteReader();
-            */
-            string connectionString =
-                "Server=(localdb)\\ProjectsV13;" +
-                "Trusted_Connection=yes;" +
-                "Integrated Security=True;" +
-                "database=master;";
 
-            string commandString = "Select FirstName, LastName from StaffTable";
+            StaffDB.ExecuteQuery("Select * from StaffTable");
+            if(StaffDB.exception != string.Empty)
+            {
+                MessageBox.Show(StaffDB.exception);
+            }
 
-            SqlDataAdapter DataAdapter = new SqlDataAdapter(commandString, connectionString);
-
-            DataSet DataSet = new DataSet();
-
-            DataAdapter.Fill(DataSet, "StaffTable");
-
-            DataTable DataTable = DataSet.Tables[0];
-
-            foreach(DataRow dataRow in DataTable.Rows)
+            foreach(DataRow dataRow in StaffDB.dbDataTable.Rows)
             {
                 lbCustomers.Items.Add((dataRow)["FirstName"] + " " + dataRow["LastName"]);
             }
+
+            dataGridView1.DataSource = StaffDB.dbDataTable;
+        }        
+        private void tbFirstName_TextChanged(object sender, EventArgs e)
+        {
+            StaffDB.AddParam("@FirstName", tbFirstName.Text + "%");
+            StaffDB.ExecuteQuery("select * from StaffTable where FirstName like @FirstName");
+
+            if(StaffDB.exception != string.Empty)
+            {
+                MessageBox.Show(StaffDB.exception);
+                return;
+            }
+            dataGridView1.DataSource = StaffDB.dbDataTable;
+        }
+        private void tbLastName_TextChanged(object sender, EventArgs e)
+        {
+            StaffDB.AddParam("@LastName", tbLastName.Text + "%");
+            StaffDB.ExecuteQuery("select * from StaffTable where LastName like @LastName");
+
+            if (StaffDB.exception != string.Empty)
+            {
+                MessageBox.Show(StaffDB.exception);
+                return;
+            }
+            dataGridView1.DataSource = StaffDB.dbDataTable;
+        }
+
+        private void tbFirstName_GotFocus(object sender, EventArgs e)
+        {
+            tbLastName.Text = string.Empty;
+        }
+
+        private void tbLastName_GotFocus(object sender, EventArgs e)
+        {
+            tbFirstName.Text = string.Empty;
+        }
+
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
