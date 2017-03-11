@@ -6,9 +6,7 @@ using System.Data.SqlClient;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorkingWithAdoNet
-{
-    public class AccessClass
+public class AccessClass
     {
         private SqlConnection dbConnection = new SqlConnection(
             "Server=(localdb)\\ProjectsV13;" +
@@ -56,4 +54,3 @@ namespace WorkingWithAdoNet
             Params.Add(NewParam);
         }
     }
-}
